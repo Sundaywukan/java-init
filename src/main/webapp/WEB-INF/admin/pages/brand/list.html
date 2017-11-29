@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>云分享</title>
+<!-- Tell the browser to be responsive to screen width -->
+<meta
+	content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+	name="viewport">
+<!-- Bootstrap 3.3.7 -->
+<link rel="stylesheet"
+	href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+<!-- Font Awesome -->
+<link rel="stylesheet"
+	href="../../bower_components/font-awesome/css/font-awesome.min.css">
+<!-- Ionicons -->
+<link rel="stylesheet"
+	href="../../bower_components/Ionicons/css/ionicons.min.css">
+<!-- DataTables -->
+<link rel="stylesheet"
+	href="../../bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+<!-- Theme style -->
+<link rel="stylesheet" href="../../dist/css/AdminLTE.min.css">
+<!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+<link rel="stylesheet" href="../../dist/css/skins/_all-skins.min.css">
+<link rel="stylesheet" href="../../css/main.css">
+
+
+
+<!-- Google Font -->
+<link rel="stylesheet"
+	href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+	<div class="wrapper">
+		<header class="main-header">
+		</header>
+		<aside class="main-sidebar">
+			<!-- /.sidebar -->
+		</aside>
+
+		<!-- Content Wrapper. Contains page content -->
+		<div class="content-wrapper">
+			<!-- Content Header (Page header) -->
+			<section class="content-header">
+				<h1 style="float: left">
+					申请 <small>列表</small>
+				</h1>
+				<!--  <button type="button" style="margin-left: 85%;width:100px" class="btn btn-block btn-primary " id="do_add">新增</button> -->
+			</section>
+
+			<!-- Main content -->
+			<section class="content">
+				<div class="row">
+					<div class="col-xs-12">
+						<div class="box">
+						<!-- 	<div class="box-header">
+								<h3 class="box-title">Hover Data Table</h3>
+							</div> -->
+							<!-- /.box-header -->
+							<div class="box-body">
+								<table id="data_table" class="table table-bordered table-hover">
+									<thead>
+										<tr>
+											<th class="table_th_min">品牌名</th>
+											<th class="table_th_min">联系电话</th>
+											<th class="table_th_min">联系人姓名</th>
+											<th class="table_th_min">法人姓名</th>
+											<th class="table_th_min">状态</th>
+											<th class="table_th_min">创建时间</th>
+											<th class="table_th_min">操作</th>
+										</tr>
+									</thead>
+									<tbody>
+										
+									</tbody>
+								</table>
+							</div>
+							<!-- /.box-body -->
+						</div>
+						<!-- /.box -->
+
+
+						<!-- /.box -->
+					</div>
+					<!-- /.col -->
+				</div>
+				<!-- /.row -->
+			</section>
+			<!-- /.content -->
+		</div>
+		<!-- /.content-wrapper -->
+		
+		<!-- Add the sidebar's background. This div must be placed
+       immediately after the control sidebar -->
+		<div class="control-sidebar-bg"></div>
+	</div>
+	<!-- ./wrapper -->
+
+	<!-- jQuery 3 -->
+	<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+	<!-- Bootstrap 3.3.7 -->
+	<script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+	<!-- DataTables -->
+	<script
+		src="../../bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+	<script
+		src="../../bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+	<!-- SlimScroll -->
+	<script
+		src="../../bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+	<!-- FastClick -->
+	<script src="../../bower_components/fastclick/lib/fastclick.js"></script>
+	<!-- AdminLTE App -->
+	<script src="../../dist/js/adminlte.min.js"></script>
+	<!-- AdminLTE for demo purposes -->
+	<script src="../../dist/js/demo.js"></script>
+	<script src="../../js/checklogin.js"></script>
+	<!-- page script -->
+	<script src="../../js/main.js"></script>
+	
+	<script>
+	    var table
+		$(function() {
+			$("#brand").addClass("active");
+			table = $("#data_table").DataTable({
+			      language:lang, //提示信息
+			      lengthChange:false,
+			      autoWidth: false, //禁用自动调整列宽
+			      stripeClasses: ["odd", "even"], //为奇偶行加上样式，兼容不支持CSS伪类的场合
+			      processing: true, //隐藏加载提示,自行处理
+			      serverSide: true, //启用服务器端分页
+			      searching: false, //禁用原生搜索
+			      orderMulti: false, //启用多列排序
+			      ordering:false,
+			      order: [], //取消默认排序查询,否则复选框一列会出现小箭头
+			      renderer: "bootstrap", //渲染样式：Bootstrap和jquery-ui
+			      pagingType: "simple_numbers", //分页样式：simple,simple_numbers,full,full_numbers
+			      columnDefs: [{
+			      "targets": 'nosort', //列的样式名
+			      "orderable": false //包含上样式名‘nosort'的禁止排序
+			      }],
+			      ajax:function(data,callback,setting){
+			        console.log(data);
+			        var listXML = new XMLHttpRequest();
+			        listXML.open('POST', baseUrl+"/brandshop/list", true);
+			        listXML.setRequestHeader('Content-Type','application/json;charset=utf-8');
+			        var json="{'currentPage':"+(data.start/data.length+1)+",'pageSize':"+data.length+"}";
+			        listXML.send(json);
+			        listXML.onreadystatechange = function(){
+			          if(listXML.readyState==4&&listXML.status==200){
+			            var data = [];
+			            var res = JSON.parse(listXML.response);
+			              res.data.list.map(function(obj){
+			              var temp = [];
+			              //判断状态
+			              var operation;
+			              if(obj.status==0){
+			            	  obj.status="不通过" ;
+			            	  operation="";
+			              }else if(obj.status==1){
+			            	  obj.status="通过" ;
+			            	  operation="";
+			              }else if(obj.status==2){
+			            	  obj.status="审核中" ;
+			            	  operation= "<a onclick='doVerify("+obj.id+")' style='margin-left:10px'>审核</a>"
+			              }
+			              temp.push(obj.brandName,obj.mobile,obj.contactName,obj.legalName,obj.status,obj.addTime,operation);
+			              data.push(temp);
+			            });
+			            setTimeout(function () {
+			            //封装返回数据
+			            var returnData = {};
+			            returnData.recordsTotal = res.data.total;//返回数据全部记录
+			            returnData.recordsFiltered =  res.data.total;//后台不实现过滤功能，每次查询均视作全部结果
+			            returnData.data = data;//返回的数据列表
+			            callback(returnData);
+			          }, 10);
+			        }else if(listXML.status==401){
+			            myAlert('长时间未操作，登录失效！请重新登录');
+			            setTimeout(function(){
+			                  location.href = '../login.html';
+			            },1000);
+			          }
+			        };
+			      },
+			    });
+		});
+		function doVerify(id) {
+			window.location.href="./verify.html?id="+id;
+		};
+	</script>
+</body>
+</html>

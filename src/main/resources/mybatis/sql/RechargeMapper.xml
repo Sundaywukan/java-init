@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="cc.innosoft.thirdchat.mapper.RechargeMapper" >
+    <resultMap id="BaseResultMap" type="cc.innosoft.thirdchat.domain.Recharge" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="pay_sn" property="paySn" jdbcType="VARCHAR" />
+        <result column="user_id" property="userId" jdbcType="INTEGER" />
+        <result column="inviter_id" property="inviterId" jdbcType="INTEGER" />
+        <result column="recharge_amount" property="rechargeAmount" jdbcType="DECIMAL" />
+        <result column="contribution_amount" property="contributionAmount" jdbcType="DECIMAL" />
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP" />
+        <result column="status" property="status" jdbcType="INTEGER" />
+        <result column="payment_time" property="paymentTime" jdbcType="TIMESTAMP" />
+        <result column="mark" property="mark" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, pay_sn, user_id, inviter_id, recharge_amount, contribution_amount, add_time, status, payment_time, mark
+    </sql>
+
+    <select id="find" resultMap="BaseResultMap" parameterType="map" >
+        select 
+        <include refid="Base_Column_List" />
+        from thirdchat_recharge
+        <where >
+            <if test="id != null" >
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="paySn != null" >
+                  and pay_sn = #{paySn,jdbcType=VARCHAR}
+            </if>
+            <if test="userId != null" >
+                  and user_id = #{userId,jdbcType=INTEGER}
+            </if>
+            <if test="inviterId != null" >
+                  and inviter_id = #{inviterId,jdbcType=INTEGER}
+            </if>
+            <if test="rechargeAmount != null" >
+                  and recharge_amount = #{rechargeAmount,jdbcType=DECIMAL}
+            </if>
+            <if test="contributionAmount != null" >
+                  and contribution_amount = #{contributionAmount,jdbcType=DECIMAL}
+            </if>
+            <if test="addTime != null" >
+                  and add_time = #{addTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="status != null" >
+                  and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="paymentTime != null" >
+                  and payment_time = #{paymentTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="mark != null" >
+                  and mark = #{mark,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
+
+    <insert id="save" parameterType="cc.innosoft.thirdchat.domain.Recharge" >
+        <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into thirdchat_recharge (pay_sn, user_id, inviter_id, 
+            recharge_amount, contribution_amount, add_time, status,
+            payment_time, mark
+            )
+        values (#{paySn,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{inviterId,jdbcType=INTEGER}, 
+            #{rechargeAmount,jdbcType=DECIMAL}, #{contributionAmount,jdbcType=DECIMAL}, #{addTime,jdbcType=TIMESTAMP},
+            #{status,jdbcType=INTEGER}, #{paymentTime,jdbcType=TIMESTAMP}, #{mark,jdbcType=VARCHAR}
+            )
+    </insert>
+    
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+		delete from thirdchat_recharge
+		where id = #{id,jdbcType=INTEGER}
+	</delete>
+	
+	<select id="findList" resultType="cc.innosoft.thirdchat.domain.query.RechargeQuery" parameterType="map">
+		select 
+		id as id, pay_sn as paySn, user_id as userId, inviter_id as inviterId, recharge_amount as rechargeAmount, contribution_amount as contributionAmount, add_time as addTime, status as status,payment_time as paymentTime, mark as mark
+        from thirdchat_recharge
+        <where >
+            <if test="id != null" >
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="paySn != null" >
+                  and pay_sn = #{paySn,jdbcType=VARCHAR}
+            </if>
+            <if test="userId != null" >
+                  and user_id = #{userId,jdbcType=INTEGER}
+            </if>
+            <if test="inviterId != null" >
+                  and inviter_id = #{inviterId,jdbcType=INTEGER}
+            </if>
+            <if test="rechargeAmount != null" >
+                  and recharge_amount = #{rechargeAmount,jdbcType=DECIMAL}
+            </if>
+            <if test="contributionAmount != null" >
+                  and contribution_amount = #{contributionAmount,jdbcType=DECIMAL}
+            </if>
+            <if test="addTime != null" >
+                  and add_time = #{addTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="status != null" >
+                  and status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="paymentTime != null" >
+                  and payment_time = #{paymentTime,jdbcType=TIMESTAMP}
+            </if>
+        </where>
+	</select>
+
+    <update id="update" parameterType="map" >
+        update thirdchat_recharge
+        <set >
+            <if test="paySn != null" >
+                pay_sn = #{paySn,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null" >
+                user_id = #{userId,jdbcType=INTEGER},
+            </if>
+            <if test="inviterId != null" >
+                inviter_id = #{inviterId,jdbcType=INTEGER},
+            </if>
+            <if test="rechargeAmount != null" >
+                recharge_amount = #{rechargeAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="contributionAmount != null" >
+                contribution_amount = #{contributionAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="addTime != null" >
+                add_time = #{addTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="status != null" >
+                status = #{status,jdbcType=INTEGER}
+            </if>
+            <if test="paymentTime != null" >
+                payment_time = #{paymentTime,jdbcType=TIMESTAMP}
+            </if>
+            <if test="mark != null" >
+                mark = #{mark,jdbcType=VARCHAR}
+            </if>
+        </set>
+        <where >
+            <if test="id != null" >
+                id = #{id,jdbcType=INTEGER}
+            </if>
+            <if test="paySn != null" >
+                  and pay_sn = #{paySn,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </update>
+
+</mapper>

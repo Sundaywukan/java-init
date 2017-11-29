@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>云分享</title>
+  <!-- Tell the browser to be responsive to screen width -->
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+  <!-- Bootstrap 3.3.7 -->
+  <link rel="stylesheet" href="../../bower_components/bootstrap/dist/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="../../bower_components/font-awesome/css/font-awesome.min.css">
+  <!-- Ionicons -->
+  <link rel="stylesheet" href="../../bower_components/Ionicons/css/ionicons.min.css">
+  <!-- Theme style -->
+  <link rel="stylesheet" href="../../dist/css/AdminLTE.min.css">
+  <!-- AdminLTE Skins. Choose a skin from the css/skins
+       folder instead of downloading all of them to reduce the load. -->
+  <link rel="stylesheet" href="../../dist/css/skins/_all-skins.min.css">
+  <!-- iCheck -->
+  <link rel="stylesheet" href="../../plugins/iCheck/flat/blue.css">
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+
+  <!-- Google Font -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+  <header class="main-header">
+  </header>
+  <aside class="main-sidebar">
+  </aside>
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1 style="float:left">
+        朋友圈 <small>修改</small>
+      </h1>
+      <button type="button" style="margin-left: 85%;width:100px" class="btn btn-block btn-primary " id="do_update">修改</button>
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-primary">
+            <div class="box-body no-padding">
+              <div class="mailbox-read-message">
+                <div class="form-group">
+                  <textarea class="form-control" rows="3" id="context" style="height: 160px"></textarea>
+                </div>
+              </div>
+              <!-- /.mailbox-read-message -->
+            </div>
+            <!-- /.box-body -->
+            <form id="pic_upload" method="POST">
+               <input type="text" name="nid" style="display: none" value="friend"/>
+               <input type="file" name="file" id="file_upload" style="display: none" onchange="do_upload()"/>
+            </form>
+            <div class="box-footer">
+            <div >
+              <ul class="mailbox-attachments clearfix" id="pics">
+              <li style="border:none"><button style="margin-top:81px " type="button" class="btn btn-block btn-default" onclick="open_file()">添加</button>
+              </li>
+              </ul>
+            </div>
+          </div>
+          <!-- /. box -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+      </div>
+    </section>
+    <!-- /.content -->
+  </div>
+  <div class="control-sidebar-bg"></div>
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 3 -->
+<script src="../../bower_components/jquery/dist/jquery.min.js"></script>
+<!-- Bootstrap 3.3.7 -->
+<script src="../../bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+<!-- Slimscroll -->
+<script src="../../bower_components/jquery-slimscroll/jquery.slimscroll.min.js"></script>
+<!-- FastClick -->
+<script src="../../bower_components/fastclick/lib/fastclick.js"></script>
+<!-- AdminLTE App -->
+<script src="../../dist/js/adminlte.min.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="../../dist/js/demo.js"></script>
+<script src="../../js/main.js"></script>
+<script src="../../js/checklogin.js"></script>
+<script type="text/javascript">
+var pic_urls=[];
+var id;
+$(function () {
+	$("#friendcircle").addClass("active");
+    id = location.search.replace('?id=','');
+    detail(id);
+});
+function detail(id) {
+	$.ajax({
+        type: "POST",
+        url: baseUrl+"/friendcircle/detail",
+        contentType: "application/json", 
+        dataType: "json", 
+        data: JSON.stringify({ 'id': id}), 
+        success: function (jsonResult) {
+            if(jsonResult.code==200){
+            	$("#context").html(jsonResult.data.context); 
+            	var html="";
+            	html=get_pics();
+            	jsonResult.data.pics.map(function(obj){
+            		//添加url
+            		pic={};
+            		pic.type=1;
+            		pic.url=obj.url;
+            		pic_urls.push(pic);
+            		html="<li><span class='mailbox-attachment-icon has-img'><img src='"+baseUrl+obj.url+"'></span><a  class='btn btn-default btn-xs pull-right'><i class='glyphicon glyphicon-remove' onclick='pic_remove(this,\""+obj.url+"\")'></i></a></li>"+html;
+		        });
+            	$("#pics").html(html); 
+            }else{
+            	alert(jsonResult.message)
+            }
+        }
+    });
+}
+
+function pic_remove(a,url) {
+	a.parentNode.parentNode.parentNode.removeChild(a.parentNode.parentNode);
+	//删除url
+	pic_urls = $.grep(pic_urls, function(value) {
+		 return value.url != url;
+	});
+}
+
+function open_file() {
+	if(pic_urls.length==9){
+		alert("图片最多为九张");
+		return;
+	}
+	$("#file_upload").click(); 
+}
+
+function do_upload() {
+	var formdata = new FormData();  
+	var form = $("#pic_upload")
+ 	var data = new FormData(form[0]);   
+	$.ajax({  
+		url: baseUrl+"/img/uploadifySave",  
+		type: 'POST',  
+		data: data,  
+		dataType: 'JSON',  
+		cache: false,  
+		processData: false,  
+		contentType: false  
+	}).done(function(res){ 
+		var html= get_pics();
+	    html="<li><span class='mailbox-attachment-icon has-img'><img src='"+baseUrl+res.data[0]+"'></span><a  class='btn btn-default btn-xs pull-right'><i class='glyphicon glyphicon-remove' onclick='pic_remove(this,\""+res.data[0]+"\")'></i></a></li>"+html;
+	    $("#pics").html(html);
+	    //添加url
+        pic={};
+        pic.type=1;
+        pic.url=res.data[0];
+        pic_urls.push(pic);
+        //清空value
+        $("#file_upload").val("");
+    });  
+} 
+
+
+$("#do_update").click(function () {
+    var context=$("#context").val();
+    var json={};// 定义一个json对象
+    json.id=id;
+    json.context=context;
+    json.pics=pic_urls;
+    var data=JSON.stringify(json);
+    $.ajax({
+        type: "POST",
+        url: baseUrl+"/friendcircle/update",
+        contentType: "application/json", 
+        dataType: "json", 
+        data: data, 
+        success: function (jsonResult) {
+            alert(jsonResult.message);
+        }
+    }); 
+});
+
+</script>
+</body>
+</html>
